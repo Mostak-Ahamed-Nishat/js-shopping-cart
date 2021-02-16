@@ -180,7 +180,13 @@ class Ui {
             this.clearCart()
         })
         cartContent.addEventListener('click', (event) => {
-            console.log(event.target);
+            if (event.target.classList.contains('remove-item')) {
+                let removeItem = event.target;
+                let id = removeItem.dataset.id
+                this.removeItem(id);
+                //remove from dom
+                cartContent.removeChild(removeItem.parentElement.parentElement);
+            }
         })
     }
 
