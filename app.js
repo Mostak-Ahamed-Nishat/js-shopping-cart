@@ -150,7 +150,6 @@ class Ui {
         cartDom.classList.remove('showCart')
     }
 
-
     //After load bring previous product if available in local storage
     setUpApp() {
         cart = Storage.getCart()
@@ -159,9 +158,52 @@ class Ui {
         cartBtn.addEventListener('click', this.showCart)
         closeCartBtn.addEventListener('click', this.hideCart)
     }
+
+    //Take product from local storage and set into cart view
     populateCart(cart) {
         cart.forEach(item => this.addCartItem(item))
     }
+
+    //cart functionality
+
+    //Increase and decrease item count
+    clearCart() {
+        let cartItems = cart.map(item => item.id)
+        cartItems.forEach(id => this.removeItem(id))
+        while (cartContent.children.length > 0) {
+            cartContent.removeChild(cartContent.children[0])
+        }
+        this.hideCart()
+    }
+    cartLogic() {
+        clearCartBtn.addEventListener('click', () => {
+            this.clearCart()
+        })
+        cartContent.addEventListener('click', (event) => {
+            console.log(event.target);
+        })
+    }
+
+
+
+
+
+
+    //Remove item from cart
+    removeItem(id) {
+        cart = cart.filter(item => item.id !== id)
+        this.setCartValue(cart);
+        Storage.saveCart(cart);
+        let button = this.getSignInButton(id);
+        button.disabled = false;
+        button.innerHTML = `<i class="fas fa-shopping-cart"></i>add to cart`
+    }
+    getSignInButton(id) {
+        return buttonsDOM.find(button => button.dataset.id === id)
+    }
+
+
+
 }
 
 // Local Storage
@@ -200,6 +242,8 @@ document.addEventListener("DOMContentLoaded", () => {
             Storage.saveProduct(products);
         }).then(() => {
             ui.getBagButton()
+            //For increment and decrement number of product
+            ui.cartLogic()
         })
         .catch((error) => {
             console.log(error)
