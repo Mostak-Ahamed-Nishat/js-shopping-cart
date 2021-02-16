@@ -50,11 +50,12 @@ class Products {
 
 // display products
 class Ui {
+    //Fetch data from json file and display data
     displayProducts(products) {
         let result = '';
         products.forEach(product => {
             result += `
-                        <!-- single-Products start -->
+            <!-- single-Products start -->
                         <article class = "product" >
                             <div class = "img-container" >
                             <img src= ${product.image} class = "product-img" alt = "" >
@@ -65,7 +66,7 @@ class Ui {
                             <h3>${product.title}</h3>
                             <h4>${product.price}</h4>
                             </article> 
-                        <!--single - Products End -->
+            <!--single - Products End -->
             `
         })
         productsDom.innerHTML = result
@@ -100,7 +101,7 @@ class Ui {
                 // display cart item
                 this.addCartItem(cartItem)
                 // show the cart
-
+                this.showCart()
             })
 
         })
@@ -124,24 +125,43 @@ class Ui {
         const div = document.createElement("div");
         div.classList.add('cart-item');
         div.innerHTML = `
-             <img src = ${item.image} alt = "">
-                 <div>
-                 <h4> ${item.title} </h4> 
-                 <h5> $${item.price}</h5>
-                 <span class = "remove-item" data-id="${item.id}">remove</span>
-                 </div>
-                 <div>
-                 < i class = "fas fa-chevron-up" data-id = "${item.id}></i>
-                 <p class = "item-amount">${item.amount}</p>
-                 < i class = "fas fa-chevron-down" data-id ="${item.id}></i>
-                 </div>
-        `
-
+             <img src=${item.image} alt="">
+              <div>
+                <h4>${item.title}</h4> 
+                <h5>$${item.price}</h5>
+                <span class="remove-item" data-id="${item.id}">remove</span>
+              </div>
+              <div>
+                <i class="fas fa-chevron-up" data-id=${item.id}></i>
+                <p class="item-amount">${item.amount}</p>
+                <i class="fas fa-chevron-down" data-id=${item.id}></i>
+              </div>`;
         cartContent.appendChild(div)
-        console.log(cartContent);
+    }
+
+    //Show side bar
+    showCart() {
+        cartOverlay.classList.add('transparentBcg')
+        cartDom.classList.add('showCart')
+    }
+
+    hideCart() {
+        cartOverlay.classList.remove('transparentBcg')
+        cartDom.classList.remove('showCart')
     }
 
 
+    //After load bring previous product if available in local storage
+    setUpApp() {
+        cart = Storage.getCart()
+        this.setCartValue(cart)
+        this.populateCart(cart)
+        cartBtn.addEventListener('click', this.showCart)
+        closeCartBtn.addEventListener('click', this.hideCart)
+    }
+    populateCart(cart) {
+        cart.forEach(item => this.addCartItem(item))
+    }
 }
 
 // Local Storage
@@ -160,11 +180,19 @@ class Storage {
         localStorage.setItem('cart', JSON.stringify(cart))
     }
 
+    static getCart(id) {
+        return localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []
+    }
+
+
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     const ui = new Ui();
     const products = new Products();
+
+    //SetUp Application
+    ui.setUpApp()
 
     //Get all products
     products.getProducts().then((products) => {
